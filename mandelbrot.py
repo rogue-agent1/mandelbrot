@@ -1,50 +1,40 @@
 #!/usr/bin/env python3
-"""mandelbrot - Mandelbrot set ASCII renderer."""
-import sys, argparse, json
+"""Mandelbrot Set - Render the fractal in ASCII with zoom support."""
+import sys
 
-def mandelbrot(c, max_iter):
+def mandelbrot(c, max_iter=100):
     z = 0
     for i in range(max_iter):
-        z = z*z + c
+        z = z * z + c
         if abs(z) > 2: return i
     return max_iter
 
-def render(xmin, xmax, ymin, ymax, width, height, max_iter):
-    chars = " .,-~:;=!*#$@"
+def render(x_min=-2.5, x_max=1.0, y_min=-1.25, y_max=1.25, width=80, height=30, max_iter=100):
+    chars = " .`-~:;=!*#$@"
     lines = []
     for row in range(height):
-        y = ymin + (ymax - ymin) * row / height
+        y = y_min + (y_max - y_min) * row / height
         line = ""
         for col in range(width):
-            x = xmin + (xmax - xmin) * col / width
+            x = x_min + (x_max - x_min) * col / width
             n = mandelbrot(complex(x, y), max_iter)
-            line += chars[n % len(chars)] if n < max_iter else " "
+            if n == max_iter: line += " "
+            else: line += chars[n % len(chars)]
         lines.append(line)
-    return "
-".join(lines)
+    return "\n".join(lines)
 
 def main():
-    p = argparse.ArgumentParser(description="Mandelbrot renderer")
-    p.add_argument("--width", type=int, default=80)
-    p.add_argument("--height", type=int, default=30)
-    p.add_argument("--max-iter", type=int, default=50)
-    p.add_argument("--xmin", type=float, default=-2.5)
-    p.add_argument("--xmax", type=float, default=1.0)
-    p.add_argument("--ymin", type=float, default=-1.0)
-    p.add_argument("--ymax", type=float, default=1.0)
-    p.add_argument("--json", action="store_true")
-    args = p.parse_args()
-    if args.json:
-        data = []
-        for row in range(args.height):
-            y = args.ymin + (args.ymax-args.ymin)*row/args.height
-            r = []
-            for col in range(args.width):
-                x = args.xmin + (args.xmax-args.xmin)*col/args.width
-                r.append(mandelbrot(complex(x,y), args.max_iter))
-            data.append(r)
-        print(json.dumps({"width": args.width, "height": args.height, "max_iter": args.max_iter, "data": data}))
-    else:
-        print(render(args.xmin, args.xmax, args.ymin, args.ymax, args.width, args.height, args.max_iter))
+    presets = {
+        "full": (-2.5, 1.0, -1.25, 1.25),
+        "seahorse": (-0.75, -0.73, 0.1, 0.12),
+        "spiral": (-0.77, -0.74, 0.08, 0.11),
+        "mini": (-0.17, -0.13, 1.02, 1.06),
+    }
+    name = sys.argv[1] if len(sys.argv) > 1 else "full"
+    coords = presets.get(name, presets["full"])
+    iters = int(sys.argv[2]) if len(sys.argv) > 2 else 80
+    print(f"=== Mandelbrot Set ({name}) ===\n")
+    print(render(*coords, width=70, height=25, max_iter=iters))
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()

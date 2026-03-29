@@ -1,6 +1,6 @@
 # mandelbrot
 
-Mandelbrot set renderer
+Mandelbrot Set Renderer. Zero-dependency, single-file Python CLI.
 
 ## Usage
 
@@ -8,7 +8,6 @@ Mandelbrot set renderer
 python3 mandelbrot.py --help
 ```
 
-## Features
+## License
 
-- Zero dependencies (Python 3.8+)
-- Single file implementation
+MIT
